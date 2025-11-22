@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roblox Chat Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Roblox Chat Tracker Dashboard</h1>
+            <div class="stats-container">
+                <div class="stat-card">
+                    <h3>Total Messages</h3>
+                    <p id="totalMessages">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Unique Users</h3>
+                    <p id="totalUsers">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Messages Today</h3>
+                    <p id="messagesToday">0</p>
+                </div>
+            </div>
+        </header>
+
+        <div class="dashboard">
+            <div class="main-content">
+                <div class="card">
+                    <h2>Recent Messages</h2>
+                    <div class="messages-container" id="messagesContainer">
+                        <!-- Messages will be loaded here -->
+                    </div>
+                    <div class="pagination">
+                        <button id="prevPage">Previous</button>
+                        <span id="pageInfo">Page 1</span>
+                        <button id="nextPage">Next</button>
+                    </div>
+                </div>
+
+                <div class="card chart-container">
+                    <h2>Messages Over Time</h2>
+                    <canvas id="messagesChart"></canvas>
+                </div>
+            </div>
+
+            <div class="sidebar">
+                <div class="card">
+                    <h2>Top Users</h2>
+                    <div id="topUsers">
+                        <!-- Top users will be loaded here -->
+                    </div>
+                </div>
+                <div class="card">
+                    <h2>Webhook URL</h2>
+                    <p>Use this URL in your Roblox game to send messages:</p>
+                    <div class="webhook-url">
+                        <input type="text" id="webhookUrl" readonly 
+                               value="http://your-server-address:3000/api/webhook">
+                        <button id="copyWebhook">Copy</button>
+                    </div>
+                    <p class="hint">Place this in your Roblox game's ServerScriptService:</p>
+                    <pre><code>local HttpService = game:GetService("HttpService")
+local Players = game:GetService("Players")
+
+local WEBHOOK_URL = "http://your-server-address:3000/api/webhook"
+
+local function sendToTracker(username, message)
+    local success, response = pcall(function()
+        return HttpService:PostAsync(
+            WEBHOOK_URL,
+            HttpService:JSONEncode({
+                username = username,
+                message = message
+            }),
+            Enum.HttpContentType.ApplicationJson
+        )
+    end)
+    
+    if not success then
+        warn("Failed to send message to tracker:", response)
+    end
+end
+
+Players.PlayerAdded:Connect(function(player)
+    player.Chatted:Connect(function(msg)
+        sendToTracker(player.Name, msg)
+    end)
+end)</code></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
